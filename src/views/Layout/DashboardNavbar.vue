@@ -36,10 +36,11 @@
         <a href="#" class="nav-link pr-0" @click.prevent slot="title-container">
           <b-media no-body class="align-items-center">
                   <span class="avatar avatar-sm rounded-circle">
-                    <img alt="Image placeholder" src="img/theme/team-4.jpg">
+                    <img v-if="infoUser.avatar === null" alt="Image placeholder" src="img/theme/team-4.jpg">
+                    <img v-else alt="Image placeholder" v-bind:src= "infoUser.avatar">
                   </span>
             <b-media-body class="ml-2 d-none d-lg-block">
-              <span class="mb-0 text-sm  font-weight-bold">John Snow</span>
+              <span class="mb-0 text-sm  font-weight-bold">{{infoUser.username}}</span>
             </b-media-body>
           </b-media>
         </a>
@@ -66,7 +67,7 @@
             <span>Support</span>
           </b-dropdown-item>
           <div class="dropdown-divider"></div>
-          <b-dropdown-item href="#!">
+          <b-dropdown-item v-on:click="clickLogout()">
             <i class="ni ni-user-run"></i>
             <span>Logout</span>
           </b-dropdown-item>
@@ -79,12 +80,19 @@
 <script>
 import { CollapseTransition } from 'vue2-transitions';
 import { BaseNav, Modal } from '@/components';
+import httpErp from '@/service/http-erp';
+import VueNotification from "@kugatsu/vuenotification";
+import Vue from 'vue';
+Vue.use(VueNotification, {
+  timer: 3
+});
 
 export default {
   components: {
     CollapseTransition,
     BaseNav,
-    Modal
+    Modal,
+    httpErp
   },
   props: {
     type: {
@@ -104,8 +112,16 @@ export default {
       activeNotifications: false,
       showMenu: false,
       searchModalVisible: false,
-      searchQuery: ''
+      searchQuery: '',
+      infoUser: {
+        'username': null,
+        'avatar': null
+      }
     };
+  },
+  created() {
+    this.checkLogin(),
+    this.getInfoUser()
   },
   methods: {
     capitalizeFirstLetter(string) {
@@ -116,6 +132,40 @@ export default {
     },
     closeDropDown() {
       this.activeNotifications = false;
+    },
+    getInfoUser(){
+      // this.$notification.new("hello world", {  timer: 5 });
+      let infoUser = JSON.parse(localStorage.getItem('infoUser'))
+      if (infoUser === null){
+        this.$notification.warning('Bạn chưa đăng nhập', {  timer: 5 });
+      }else {
+        this.infoUser = infoUser
+      }
+    },
+    clickLogout(){
+      httpErp.logout().then(e => {
+        if (e.data.data.success){
+          this.$notification.success(e.data.data.message, {  timer: 5 });
+          localStorage.removeItem('infoUser');
+          localStorage.removeItem('token');
+          window.location.href = 'login'
+        } else{
+          this.$notification.error(e.data.data.message, {  timer: 5 });
+        }
+      })
+    },
+    checkLogin(){
+      httpErp.getInfoUser().then(e => {
+        if (e.data.success){
+          localStorage.setItem('infoUser', JSON.stringify(e.data.data.infoUser));
+          localStorage.setItem('token', e.data.data.token);
+          this.$notification.success(e.data.message, {  timer: 5 });
+        } else{
+          this.$notification.error(e.data.message, {  timer: 5 });
+          localStorage.removeItem('infoUser');
+          localStorage.removeItem('token');
+        }
+      })
     }
   }
 };

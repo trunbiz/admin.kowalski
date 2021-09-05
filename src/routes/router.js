@@ -9,6 +9,12 @@ const router = new VueRouter({
   routes, // short for routes: routes
   linkActiveClass: 'active',
   scrollBehavior: (to, from ,savedPosition) => {
+    let infoUser = JSON.parse(localStorage.getItem('infoUser'))
+    if (infoUser === null){
+      router.push("/login").catch(()=>{});
+    } else if(to.name === 'login'){
+      router.push("/dashboard").catch(()=>{});
+    }
     if (savedPosition) {
       return savedPosition;
     }

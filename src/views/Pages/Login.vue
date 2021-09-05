@@ -6,9 +6,8 @@
         <div class="header-body text-center mb-7">
           <b-row class="justify-content-center">
             <b-col xl="5" lg="6" md="8" class="px-5">
-              <h1 class="text-white">Welcome!</h1>
-              <p class="text-lead text-white">Use these awesome forms to login or create new account in your project for
-                free.</p>
+              <h1 class="text-white">Xin chào !</h1>
+              <p class="text-lead text-white">Cảm ơn bạn đang tin tưởng và sử dụng phần mềm Bomber.</p>
             </b-col>
           </b-row>
         </div>
@@ -26,7 +25,7 @@
         <b-col lg="5" md="7">
           <b-card no-body class="bg-secondary border-0 mb-0">
             <b-card-header class="bg-transparent pb-5"  >
-              <div class="text-muted text-center mt-2 mb-3"><small>Sign in with</small></div>
+              <div class="text-muted text-center mt-2 mb-3"><small>Đăng nhập với</small></div>
               <div class="btn-wrapper text-center">
                 <a href="#" class="btn btn-neutral btn-icon">
                   <span class="btn-inner--icon"><img src="img/icons/common/github.svg"></span>
@@ -46,17 +45,17 @@
                 <b-form role="form" @submit.prevent="handleSubmit(onSubmit)">
                   <base-input alternative
                               class="mb-3"
-                              name="Email"
-                              :rules="{required: true, email: true}"
-                              prepend-icon="ni ni-email-83"
-                              placeholder="Email"
-                              v-model="model.email">
+                              name="username"
+                              :rules="{required: true}"
+                              prepend-icon="ni ni-circle-08"
+                              placeholder="Username"
+                              v-model="model.username">
                   </base-input>
 
                   <base-input alternative
                               class="mb-3"
                               name="Password"
-                              :rules="{required: true, min: 6}"
+                              :rules="{required: true}"
                               prepend-icon="ni ni-lock-circle-open"
                               type="password"
                               placeholder="Password"
@@ -85,19 +84,41 @@
   </div>
 </template>
 <script>
+  import httpErp from '@/service/http-erp.js'
+  import VueNotification from "@kugatsu/vuenotification";
+  import Vue from 'vue';
+  Vue.use(VueNotification, {
+    timer: 3
+  });
   export default {
     data() {
       return {
         model: {
-          email: '',
+          username: '',
           password: '',
           rememberMe: false
         }
       };
     },
+    components: {
+      httpErp
+    },
     methods: {
       onSubmit() {
-        // this will be called only after form is valid. You can do api call here to login
+        let params = {
+          'username': this.model.username,
+          'password': this.model.password
+        }
+        httpErp.login(params).then(e => {
+          if (e.data.success){
+            localStorage.setItem('infoUser', JSON.stringify(e.data.data.infoUser));
+            localStorage.setItem('token', e.data.data.token);
+            this.$notification.success(e.data.message);
+            window.location.href = '/'
+          } else{
+            this.$notification.warning(e.data.message);
+          }
+        })
       }
     }
   };
