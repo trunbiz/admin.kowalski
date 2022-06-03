@@ -7,7 +7,7 @@
           <b-row class="justify-content-center">
             <b-col xl="5" lg="6" md="8" class="px-5">
               <h1 class="text-white">Xin chào !</h1>
-              <p class="text-lead text-white">Cảm ơn bạn đang tin tưởng và sử dụng phần mềm Bomber.</p>
+              <p class="text-lead text-white">Cảm ơn bạn đang tin tưởng và sử dụng phần mềm Kowalski.</p>
             </b-col>
           </b-row>
         </div>

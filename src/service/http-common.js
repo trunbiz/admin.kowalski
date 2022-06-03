@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseDomain = 'http://bomber.local';
+const baseDomain = process.env.VUE_APP_API_URL;
 const baseUrl = `${baseDomain}/api`;
 const token = localStorage.getItem('token');
 export default axios.create({
